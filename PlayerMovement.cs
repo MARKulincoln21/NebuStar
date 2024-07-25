@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     private Rigidbody2D rb;
-    [SerializeField] private float movespeed = 5.0f;
+    [SerializeField] private float movespeed = 1.0f;
 
     // Start is called before the first frame update
     void Start()
@@ -16,13 +16,15 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        float XmovementIn = Input.GetAxis("Horizontal");
+        float XmovementIn = Input.GetAxis("Horizontal") * movespeed;
         
-        float YmovementIn = Input.GetAxis("Vertical");
+        float YmovementIn = Input.GetAxis("Vertical") * movespeed;
 
         Vector3 direction = new Vector3(XmovementIn, YmovementIn, 0);
 
-        transform.Translate(direction * movespeed * Time.deltaTime);
+        FindObjectOfType<PlayerAnimation>().SetDirection(direction);
+
+        transform.Translate(direction * Time.deltaTime);
         
     }
 }
