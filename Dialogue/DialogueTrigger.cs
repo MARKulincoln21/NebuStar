@@ -11,15 +11,34 @@ public class DialogueTrigger : MonoBehaviour
     [Header("Ink JSON")]
     [SerializeField] private TextAsset inkJSON;
 
+    private static DialogueTrigger instance;
+
     private bool playerInRange;
 
     private void Awake() {
+        if (instance == null) {
+            instance = this;
+        } else {
+            Destroy(gameObject);
+        }
+
         playerInRange = false;
         visualCue.SetActive(false);
     }
+
+    public static DialogueTrigger GetInstance() {
+        if (instance != null) {
+        return instance;
+        }
+        else {
+            Debug.LogError("instance is Null!");
+            return null;
+        }
+    }
+
     
     private void Update() {
-    if(playerInRange && DialogueManager.GetInstance() != null && !DialogueManager.GetInstance().dialogueIsPlaying) {
+    if(playerInRange && DialogueManager.GetInstance() != null && !DialogueManager.GetInstance().dialogueIsPlaying || playerInRange && DialogueManager.GetInstance() != null && !DialogueManager.GetInstance().trainingIsPlaying) {
         visualCue.SetActive(true);
         if (InputManager.GetInstance() != null && InputManager.GetInstance().GetInteractPressed()) {
             if (inkJSON != null) {
@@ -29,10 +48,26 @@ public class DialogueTrigger : MonoBehaviour
             }
         }
     }
+
+    else if (playerInRange && DialogueManager.GetInstance().dialogueIsPlaying || playerInRange && DialogueManager.GetInstance().trainingIsPlaying) {
+        visualCue.SetActive(false);
+    }
     else {
         visualCue.SetActive(false);
     }
+
 }
+    
+
+
+
+    public void EnterTraining() {
+        DialogueManager.GetInstance().EnterTrainMode(inkJSON);
+    }
+
+    public void EnterBattleTraining() {
+        DialogueManager.GetInstance().EnterTrainBattleMode(inkJSON);
+    }
 
     private void OnTriggerEnter2D(Collider2D collider) {
         if (collider.gameObject.tag == "Player") {

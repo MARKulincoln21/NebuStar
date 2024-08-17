@@ -20,6 +20,10 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
+        else if (DialogueManager.GetInstance().trainingIsPlaying) {
+            return;
+        }
+
         
         else if (Input.GetKey(KeyCode.K)) {
             movespeed = 1.25f;
