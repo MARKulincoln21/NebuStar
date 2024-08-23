@@ -19,7 +19,7 @@ public class PlayerAnimation : MonoBehaviour
     {
         anim = GetComponent<Animator>();
         directionArray = staticD;
-        anim.Play(directionArray[2]);
+        // anim.Play(directionArray[2]);
     }
 
 
@@ -35,7 +35,7 @@ public class PlayerAnimation : MonoBehaviour
             directionArray = walk;
 
             lastDirection = DirectionToIndex(_direction);
-            Debug.Log(lastDirection);
+            // Debug.Log(lastDirection);
         }
 
         else {

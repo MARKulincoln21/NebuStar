@@ -28,9 +28,6 @@ public class EnemyBase : ScriptableObject
     [SerializeField] int maxHP;
 
     [SerializeField] int mass;
-
-    [SerializeField] int attack;
-    [SerializeField] int defence;
     [SerializeField] int speed;
 
     [SerializeField] List<LearnableMove> learnableMoves;
@@ -55,14 +52,6 @@ public class EnemyBase : ScriptableObject
         get { return mass; }
     }
 
-    public int Attack {
-        get { return attack; }
-    }
-
-    public int Defence {
-        get { return defence; }
-    }
-
     public int Speed {
         get { return speed; }
     }
@@ -73,10 +62,6 @@ public class EnemyBase : ScriptableObject
         HeatBody,
         Gravity,
         Galaxy
-    }
-
-    public void DecSpeed(int value) {
-        defence += value;
     }
 }
 

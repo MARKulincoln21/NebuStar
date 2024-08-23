@@ -38,9 +38,9 @@ public class DialogueTrigger : MonoBehaviour
 
     
     private void Update() {
-    if(playerInRange && DialogueManager.GetInstance() != null && !DialogueManager.GetInstance().dialogueIsPlaying || playerInRange && DialogueManager.GetInstance() != null && !DialogueManager.GetInstance().trainingIsPlaying) {
+    if(playerInRange && DialogueManager.GetInstance() != null && !DialogueManager.GetInstance().dialogueIsPlaying && DialogueManager.GetInstance().stageOneDialogueFinished == false || playerInRange && DialogueManager.GetInstance() != null && !DialogueManager.GetInstance().trainingIsPlaying && DialogueManager.GetInstance().stageOneDialogueFinished == false) {
         visualCue.SetActive(true);
-        if (InputManager.GetInstance() != null && InputManager.GetInstance().GetInteractPressed()) {
+        if (InputManager.GetInstance() != null && InputManager.GetInstance().GetInteractPressed() && DialogueManager.GetInstance().stageOneDialogueFinished == false) {
             if (inkJSON != null) {
                 DialogueManager.GetInstance().EnterDialogueMode(inkJSON);
             } else {
@@ -67,6 +67,10 @@ public class DialogueTrigger : MonoBehaviour
 
     public void EnterBattleTraining() {
         DialogueManager.GetInstance().EnterTrainBattleMode(inkJSON);
+    }
+
+    public void ContinueDialogue() {
+        DialogueManager.GetInstance().ContinueDialogueMode(inkJSON);
     }
 
     private void OnTriggerEnter2D(Collider2D collider) {

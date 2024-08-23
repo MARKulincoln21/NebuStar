@@ -4,7 +4,7 @@ using UnityEngine;
 using TMPro;
 using Ink.Runtime;
 using UnityEngine.EventSystems;
-using Ink.UnityIntegration;
+//using Ink.UnityIntegration;
 
 public class DialogueManager : MonoBehaviour
 {
@@ -38,15 +38,21 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private GameObject trainCamera;
 
 
-    [Header("Globals Ink File")]
-    [SerializeField] private InkFile globalsInkFile;
-
+    //[Header("Globals Ink File")]
+    //[SerializeField] private InkFile globalsInkFile;
+    
+    [Header("Load Globals JSON")]
+    [SerializeField] private TextAsset loadGlobalsJSON;
 
     [Header("TrainingChoices UI")]
 
     [SerializeField] private GameObject[] trainchoices;
 
     private TextMeshProUGUI[] trainchoicesText;
+
+    [Header("Entrance Point")]
+
+    [SerializeField] public GameObject entrancePoint;
 
     private Story currentStory;
     public bool dialogueIsPlaying { get; private set; }
@@ -55,13 +61,19 @@ public class DialogueManager : MonoBehaviour
 
     public bool trainActivation { get; private set; }
 
+    public bool trainBattleIsOver { get; set; }
+
     public bool trainBattleActivation { get; set; }
-    public bool trainBattleIsPlaying { get; private set; }
+    public bool trainBattleIsPlaying { get; set; }
+
+    public bool stageOneDialogueFinished {get; set;}
     private static DialogueManager instance;
     private DialogueVariables dialogueVariables;
 
     private const string TRAINING_TAG = "Trigger_training";
     private const string TRAINBATTLE_TAG = "Trigger_trainBattle";
+
+    [Header("FinalBattleDialogue")]
 
     [SerializeField] private BattleSystem bSystem;
     [SerializeField] private BattleDialogueBox dBox;
@@ -73,6 +85,10 @@ public class DialogueManager : MonoBehaviour
         } else {
             Destroy(gameObject);
         }
+
+        stageOneDialogueFinished = false;
+
+        entrancePoint.SetActive(false);
         dialogueIsPlaying = false;
         dialoguePanel.SetActive(false);
 
@@ -85,6 +101,7 @@ public class DialogueManager : MonoBehaviour
         trainBattlePanel.SetActive(false);
         trainBattleCamera.SetActive(false);
         trainBattleActivation = false;
+        trainBattleIsOver = false;
 
         // DialogueChoices
 
@@ -106,7 +123,8 @@ public class DialogueManager : MonoBehaviour
             indexTrain++;
         }
 
-        dialogueVariables = new DialogueVariables(globalsInkFile.filePath);
+        // dialogueVariables = new DialogueVariables(globalsInkFile.filePath);
+         dialogueVariables = new DialogueVariables(loadGlobalsJSON);
     }
 
     // Update is called once per frame
@@ -125,6 +143,10 @@ public class DialogueManager : MonoBehaviour
     
 
     public void Update() {
+        if (trainBattleIsOver == true) {
+            trainBattleIsPlaying = false;
+        }
+
         if(dialogueIsPlaying && !trainingIsPlaying && !trainBattleIsPlaying) {
             Debug.Log("DialogueIsPlaying");
                 if (InputManager.GetInstance().GetSubmitPressed()) {
@@ -154,6 +176,7 @@ public class DialogueManager : MonoBehaviour
 
     public void EnterDialogueMode(TextAsset inkJSON) {
         if (inkJSON != null) {
+            Debug.Log("Ink JSON content: " + inkJSON.text);
             currentStory = new Story(inkJSON.text);
             dialogueIsPlaying = true;
             dialoguePanel.SetActive(true);
@@ -168,8 +191,27 @@ public class DialogueManager : MonoBehaviour
         }
     }
 
+    public void ContinueDialogueMode(TextAsset inkJSON) {
+        if (trainingText == null) {
+            Debug.LogError("TrainingText is not assigned!");
+        }
+
+        if (inkJSON != null) {
+            dialogueIsPlaying = true;
+            dialoguePanel.SetActive(true);
+            dialogueText.text = currentStory.Continue();
+            dialogueVariables.StartListening(currentStory);
+            ContinueStory();
+        }
+        else {
+            Debug.LogError("inkJSON is null!");
+        }
+    }
+
+
+
     public void EnterTrainMode(TextAsset inkJSON) {
-         if (trainingText == null) {
+        if (trainingText == null) {
             Debug.LogError("TrainingText is not assigned!");
         }
         if (inkJSON != null) {
@@ -252,6 +294,10 @@ public class DialogueManager : MonoBehaviour
         DialogueTrigger.GetInstance().EnterBattleTraining();
      }
 
+    public void TriggerContinueDialogue() {
+        DialogueTrigger.GetInstance().ContinueDialogue();
+    }
+
     private void ContinueStory() {
         if (currentStory == null) {
             Debug.LogError("currentStory is null. Cannot continue the story.");
@@ -267,6 +313,17 @@ public class DialogueManager : MonoBehaviour
                 if (tag == "Trigger_training") {
                     StartCoroutine(ExitDialogueMode());
                     TriggerTraining();
+                }
+
+                else if (tag == "Trigger_Finalbattle") {
+                    StartCoroutine(ExitDialogueMode());
+                    TriggerBattleTraining();
+                }
+
+                else if (tag == "Trigger_activateEntrance") {
+                    StartCoroutine(ExitDialogueMode());
+                    entrancePoint.SetActive(true);
+                    stageOneDialogueFinished = true;
                 }
             }
             }
@@ -300,6 +357,13 @@ public class DialogueManager : MonoBehaviour
                     StartCoroutine(bSystem.SetupEnemyBattle());
                     bSystem.SetupPlayerBattle();
                     }
+                else if (tag == "Trigger_battleStart") {
+                    trainBattleActivation = true;
+                    dialogueVariables.StopListening(currentStory);
+                    StartCoroutine(bSystem.SetupEnemyBattle());
+                    bSystem.SetupPlayerBattle();
+                    }
+
                 else if (tag == "Trigger_pickMeteor") {
                     trainBattleActivation = true;
                     dialogueVariables.StopListening(currentStory);
@@ -320,6 +384,11 @@ public class DialogueManager : MonoBehaviour
                     StartCoroutine(bSystem.ContinueEnemyBattle());
                     bSystem.SetupPlayerBattle();
                 }
+
+                else if (tag == "Trigger_FinalBattleDialogue") {
+                    StartCoroutine(ExitTrainBattleMode());
+                    TriggerContinueDialogue();
+                }
                 }
             }
         else {
@@ -329,7 +398,9 @@ public class DialogueManager : MonoBehaviour
        } else {
         Debug.LogWarning("Neither dialogueIsPlaying nor trainingIsPlaying is true.");
         }
+    
     }
+
 
 
     private void DisplayTrainChoices() {
@@ -426,6 +497,7 @@ public class DialogueManager : MonoBehaviour
     public void MakeChoice(int choiceIndex) {
         currentStory.ChooseChoiceIndex(choiceIndex);
     }
+
 }
     
 

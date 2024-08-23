@@ -5,6 +5,10 @@ using UnityEngine;
 public class BattleUnit : MonoBehaviour
 {
     // Start is called before the first frame update
+    private static BattleUnit instance;
+
+    
+ 
     [SerializeField] EnemyBase _base;
     [SerializeField] PlayerBase _base2;
 

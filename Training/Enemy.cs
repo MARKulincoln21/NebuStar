@@ -17,22 +17,23 @@ public class Enemy
         foreach ( var move in _base.LearnableMoves) {
             Moves.Add(new Move(move.Base));
 
-            if (Moves.Count >= 4) {
+            if (Moves.Count > 6) {
                 break;
             }
         }
     }
 
-    public int Attack {
-        get { return Mathf.FloorToInt((_base.Attack)) + 5;}
-    }
-
-    public int Defence {
-        get { return Mathf.FloorToInt((_base.Defence)) + 5;}
+    public Move MoveChooser(string nameOfMove) {
+        for (int i = 0; i < Moves.Count; i++) {
+            if (Moves[i].Base.Name == nameOfMove) {
+                return Moves[i];
+            }
+        }
+        return Moves[0];
     }
 
     public int Speed {
-        get { return Mathf.FloorToInt((_base.Speed)) + 5;}
+        get { return (_base.Speed) + 5;}
     }
 
     public int MaxHP {
@@ -41,6 +42,11 @@ public class Enemy
 
     public int Mass {
         get { return (_base.Mass);}
+    }
+
+    public Move GetRandomMove() {
+        int r = Random.Range(0, Moves.Count);
+        return Moves[r];
     }
 
     public bool TakePlayerDamage(Move move, Player attacker) {
@@ -53,8 +59,19 @@ public class Enemy
         return false;
     }
 
-    public Move GetRandomMove() {
+    public Move GetRandomNotGravityMove() {
         int r = Random.Range(0, Moves.Count);
+        if (Moves[r].Base.Name == "Gravity Field") {
+            r++;
+        }
+        return Moves[r];
+    }
+
+    public Move GetRandomNotGravityNotRockMove() {
+        int r = Random.Range(0, Moves.Count);
+        if (Moves[r].Base.Name == "Gravity Field" || Moves[r].Base.Name == "Ring of Rocky Destruction") {
+            r++;
+        }
         return Moves[r];
     }
 }

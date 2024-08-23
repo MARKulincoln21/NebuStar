@@ -9,8 +9,6 @@ public class PlayerBase : ScriptableObject
 
     [SerializeField] int mass;
     [SerializeField] int maxHP;
-    [SerializeField] int attack;
-    [SerializeField] int defence;
     [SerializeField] int speed;
 
     [SerializeField] List<LearnableMove> learnableMoves;
@@ -33,29 +31,28 @@ public class PlayerBase : ScriptableObject
         get { return mass; }
     }
 
-    public int Attack {
-        get { return attack; }
+
+    public void IncMass() {
+        mass = mass * 2;
     }
 
-    public int Defence {
-        get { return defence; }
+    public void IncSpeed() {
+        speed = speed * 2;
     }
-
-    public void SetDefence(int value) {
-        defence = value;
-    }
-
-    public void IncDefence(int value) {
-        defence += value;
-    }
+    
 
     public int Speed {
         get { return speed; }
     }
 
-    public void DecSpeed(int value) {
-        defence += value;
+    public void SetSpeed(int value) {
+        speed = value;
     }
+
+    public void SetMass(int value) {
+        mass = value;
+    }
+
 
 
     [System.Serializable]
