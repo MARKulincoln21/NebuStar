@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+
 public enum BattleState { Start, PlayerAction, PlayerMove, EnemyMove, Busy }
 public class BattleSystem : MonoBehaviour
 {
@@ -34,10 +35,17 @@ public class BattleSystem : MonoBehaviour
     bool ringRockyDamage;
 
     private DialogueVariables dialogueVariables;
+    private static BattleSystem instance;
 
     MoveMechanics moveMech; 
 
-    private void Start() {
+    private void Awake() {
+        if (instance == null) {
+            instance = this;
+        } else {
+            Destroy(gameObject);
+        }
+
         numbOfEnemTurn = 0;
         numbOfPlayTurn = 0;
 
@@ -46,6 +54,16 @@ public class BattleSystem : MonoBehaviour
         roundOfRockDMG = 0;
 
         playerRoundOfStun = 0;
+    }
+
+    public static BattleSystem GetInstance() {
+        if (instance != null) {
+        return instance;
+        }
+        else {
+            Debug.LogError("instance is Null!");
+            return null;
+        }
     }
 
     public IEnumerator SetupEnemyBattle() {

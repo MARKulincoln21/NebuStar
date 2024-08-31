@@ -1,0 +1,7 @@
+- This is a How To Play for the NebuStar Game.
+
+To move: arrow keys or WASD
+To initiate conversation: i key
+To continue conversation: Spacebar
+…
+- GoodLuck! And Have Fun!
